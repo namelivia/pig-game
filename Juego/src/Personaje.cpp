@@ -2,10 +2,11 @@
 #include "Personaje.h"
 
 //Inicializamos parámetros iniciales
-Personaje::Personaje(ISceneManager *smgr,IVideoDriver *driver,IAnimatedMesh *mesh,ITexture *texture){
+Personaje::Personaje(ISceneManager *smgr,IVideoDriver *driver,IAnimatedMesh *mesh,ITexture *texture,f32 whatMaxSpeed){
 	estado=false;
 	anteriorEstado=false;
 	velocidad = 0.0f;
+	maxSpeed = whatMaxSpeed;
 
 	//Añadimos el nodo
 	vector3df TScale = vector3df(1.0f, 1.0f, 1.0f);
@@ -49,9 +50,9 @@ void Personaje::actualizar(){
 void Personaje::acelera(bool direccion){
 	previousPosition = getNode()->getPosition();
 	if (direccion){
-		velocidad = 1.f;
+		velocidad = maxSpeed;
 	} else {	
-		velocidad = -1.f;
+		velocidad = -maxSpeed;
 	}
 }
 void Personaje::gira(bool direccion){

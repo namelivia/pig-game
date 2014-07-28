@@ -3,7 +3,6 @@
 
 Combate::Combate(IrrlichtDevice *device,IVideoDriver *driver,ISceneManager *smgr,IGUIEnvironment* guienv){
 
-	closeTo = 0;
 //Inicializamos un escenario
 	escenario = new Escenario(smgr,driver);
 
@@ -16,12 +15,16 @@ Combate::Combate(IrrlichtDevice *device,IVideoDriver *driver,ISceneManager *smgr
 	ITexture *planeTexture = driver->getTexture("media/plane.png");
 
 //Inicializamos un cerdo rosa 
-	cerdo = new Personaje(smgr,driver,pigMesh,pigTexture);
-	car = new Vehicle(smgr,driver,carMesh,carTexture);
-	plane = new Vehicle(smgr,driver,planeMesh,planeTexture);
+	cerdo = new Personaje(smgr,driver,pigMesh,pigTexture,1.0);
+	car = new Personaje(smgr,driver,carMesh,carTexture,2.0);
+	plane = new Personaje(smgr,driver,planeMesh,planeTexture,3.0);
 
-//Movemos el avión a otro sitio
+	playerObject = cerdo;
+	timer = 0;
+
+//Position the objects
 	plane->getNode()->setPosition(vector3df(100,100,100));
+	car->getNode()->setPosition(vector3df(-100,100,100));
 
 //colisión entre cerdo y escenario
 	ISceneNodeAnimator* anim = smgr->createCollisionResponseAnimator(escenario->getSelector(),cerdo->getNode(),vector3df(3,3,3),vector3df(0,-10,0),vector3df(0,0,0));
@@ -56,35 +59,63 @@ delete escenario;
 
 //
 void Combate::action(ISceneManager *smgr){
-	if (closeTo == 1){
-		camara = new Camara(smgr,car->getNode());
-	} else if (closeTo == 2){
-		camara = new Camara(smgr,plane->getNode());
+	if (playerObject == cerdo){
+		if (closeTo == 1){
+			camara = new Camara(smgr,car->getNode());
+			playerObject = car;
+			cerdo->getNode()->setVisible(false);
+		} else if (closeTo == 2){
+			camara = new Camara(smgr,plane->getNode());
+			playerObject = plane;
+			cerdo->getNode()->setVisible(false);
+		}
+	} else {
+			if (playerObject == plane){
+				vector3d<f32> * edges = new vector3d<f32>[8];
+				plane->getNode()->getTransformedBoundingBox().getEdges(edges);
+				cerdo->getNode()->setPosition(plane->getNode()->getPosition()+edges[0]);
+			} else {
+				vector3d<f32> * edges = new vector3d<f32>[8];
+				car->getNode()->getTransformedBoundingBox().getEdges(edges);
+				cerdo->getNode()->setPosition(car->getNode()->getPosition()+edges[0]);
+			}
+			camara = new Camara(smgr,cerdo->getNode());
+			playerObject = cerdo;
+			cerdo->getNode()->setVisible(true);
 	}
 }
 
 //Actualización del combate
 void Combate::actualizar(IrrlichtDevice *device,ISceneManager *smgr,IVideoDriver *driver,u32 TDeltaTime){
 
-//Según las teclas WSAD, aceleramos o giramos al cerdo
+	if (timer > 0){
+		timer --;
+	}
+
+	//Según las teclas WSAD, aceleramos o giramos al cerdo
 		if(receiver->IsKeyDown(KEY_KEY_W))
-			cerdo->acelera(true);
+			playerObject->acelera(true);
 		else if(receiver->IsKeyDown(KEY_KEY_S))
-			cerdo->acelera(false);
+			playerObject->acelera(false);
 		if(receiver->IsKeyDown(KEY_KEY_A))
-			cerdo->gira(true);
+			playerObject->gira(true);
 		else if(receiver->IsKeyDown(KEY_KEY_D))
-			cerdo->gira(false);
-		if(receiver->IsKeyDown(KEY_KEY_E))
-			action(smgr);
+			playerObject->gira(false);
+		if(receiver->IsKeyDown(KEY_KEY_E)){
+			if (timer == 0){
+				action(smgr);
+				timer = 100;
+			}
+		}
 
 //Actualizamos al otro cerdo
-		cerdo->actualizar();
+		playerObject->actualizar();
 		camara->moveCameraControl(device);
 
 	
 //TODO: Ver si podemos meter esto en un bucle
 //Si ha colisionado con el coche, le hace volver a la posición anterior
+closeTo = 0;
 		if(cerdo->getNode()->getTransformedBoundingBox().intersectsWithBox(car->getNode()->getTransformedBoundingBox())) {
 			//Ñapa? Para que no colisionen en el primer fotograma
 			if (cerdo->getNode()->getPosition().Z != 0.0f){

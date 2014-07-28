@@ -3,7 +3,6 @@
 #include "Escenario.h"
 #include "Camara.h"
 #include "Personaje.h"
-#include "Vehicle.h"
 #include "EventReceiver.h"
 
 using namespace irr;
@@ -25,9 +24,11 @@ class Combate{
   private:
 	Escenario *escenario;
 	Personaje *cerdo;
-	Vehicle *car;
-	Vehicle *plane;
+	Personaje *car;
+	Personaje *plane;
+	Personaje *playerObject;
 	Camara *camara;
 	EventReceiver *receiver;
 	int closeTo;
+	int timer;
 };
