@@ -1,0 +1,23 @@
+Juego del cerdo
+        _
+     = ò ó =
+      (0 0)          *
+     //   \\       _/_
+      \___/       /   \           
+      // \\       \___/
+
+===========================
+
+CONTROLES
+---------
+Teclas de dirección y ratón -> Mover la cámara
+WSAD -> Mover al cerdo rosa
+
+Si se queja de que falta una librería:
+sudo apt-get install libXxf86vm-dev
+
+WORK IN PROGRESS!!
+
+NOTAS
+------
+Acordarme de modificar los parámetros de exportación del modelo de Blender para que se vean smooth los cerdos
